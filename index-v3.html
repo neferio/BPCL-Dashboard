@@ -177,7 +177,10 @@ select.flt:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba
 .kpi .val small{font-size:12px;font-weight:600;color:var(--muted)}
 .kpi .sub{font-size:10.8px;color:#3D5165;font-weight:600}
 .kpi .sub b{color:var(--navy-dark)}
-.kpi[data-tip]{cursor:default}
+.kpi[data-tip]{cursor:help}
+.kpi[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 8px);background:var(--navy-dark);color:#fff;padding:9px 12px;border-radius:7px;font-size:11px;white-space:pre-line;width:240px;text-align:left;line-height:1.6;z-index:130;box-shadow:0 8px 20px rgba(10,25,40,.3)}
+.kpi[data-tip]:hover::before{content:'';position:absolute;left:22px;top:100%;border:6px solid transparent;border-bottom-color:var(--navy-dark);z-index:130}
+.kpi[data-tip]:hover{z-index:125}
 .kpi .minibar{height:9px;background:#EDF0F3;border-radius:5px;overflow:hidden;position:relative;margin-top:2px}
 .kpi .minibar .f{height:100%;border-radius:4px;position:absolute;left:0;top:0}
 .kpi .minibar .t{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--navy-dark);opacity:.6}
