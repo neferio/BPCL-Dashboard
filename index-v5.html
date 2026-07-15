@@ -186,8 +186,6 @@ select.flt:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba
 .kpi.clickable{cursor:pointer;transition:box-shadow .15s}
 .kpi.clickable:hover{box-shadow:0 4px 12px rgba(20,40,60,.14)}
 .kpi.clickable .go{position:absolute;right:11px;top:11px;font-size:12px;color:var(--navy);opacity:.75}
-.infoic{display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;background:#D8E4F0;color:var(--navy);font-size:9.5px;font-weight:800;margin-left:5px;cursor:help;position:relative;vertical-align:middle;text-transform:none;letter-spacing:0}
-.infoic:hover::after{content:attr(data-tip);position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%);background:var(--navy-dark);color:#fff;padding:8px 12px;border-radius:7px;font-size:10.6px;font-weight:500;white-space:pre-line;width:235px;text-align:left;line-height:1.6;z-index:150;box-shadow:0 8px 20px rgba(10,25,40,.3)}
 
 /* ---------- Badges ---------- */
 .badge{padding:4px 13px;border-radius:12px;font-size:12.5px;font-weight:700;display:inline-block;white-space:nowrap}
@@ -330,19 +328,19 @@ canvas{max-height:250px}
         <div class="row" data-tip="Forecast delay is under 5% of the planned duration and work has started (actual progress > 0)."><span class="badge b-green">On Track</span> Work is progressing as planned</div>
         <div class="row" data-tip="Forecast delay is 5–20% of the planned duration. Recoverable at the current pace without re-planning."><span class="badge b-yellow">Low Risk</span> Minor slippage, recoverable</div>
         <div class="row" data-tip="Forecast delay is 20–30% of the planned duration. Needs intervention to stop the end date moving."><span class="badge b-amber">Medium Risk</span> Falling behind, needs attention</div>
-        <div class="row" data-tip="Forecast delay is 30% or more of the planned duration and the planned end date has not yet been crossed. Escalate immediately."><span class="badge b-pink">High Risk</span> Significant slippage, escalate</div>
+        <div class="row" data-tip="Forecast delay is 30% or more of the planned duration, while the planned end date has not yet been crossed — escalate."><span class="badge b-pink">High Risk</span> Significant slippage, escalate</div>
         <div class="row" data-tip="The planned end date has been crossed and work is still ongoing. Forecast end shows the new expected completion."><span class="badge b-red">Delayed</span> Past its planned end date</div>
         <div class="row" data-tip="No actual progress recorded yet (0%) and forecast delay is under 5% of planned duration. Only planned and forecast dates are shown."><span class="badge b-grey">Not Started</span> No work recorded yet</div>
         <div class="footnote" style="margin-top:4px">Delay bands are measured as forecast delay ÷ planned duration. Completed items show Completed whether they finished on time or with delay.</div>
       </div>
       <div class="lg">
         <h3>Card colour</h3>
-        <div class="row"><span class="swatch" style="background:#F1F8F4;border-color:#C8E2D2"></span> <span><b>Green</b>: On Track / Completed</span></div>
-        <div class="row"><span class="swatch" style="background:#FCF9EA;border-color:#EAE0B5"></span> <span><b>Yellow</b>: Low Risk</span></div>
-        <div class="row"><span class="swatch" style="background:#FCF5E9;border-color:#EED9B4"></span> <span><b>Amber</b>: Medium Risk</span></div>
-        <div class="row"><span class="swatch" style="background:#FBF0F5;border-color:#EBC9D9"></span> <span><b>Pink</b>: High Risk</span></div>
-        <div class="row"><span class="swatch" style="background:#FCEFED;border-color:#EFC7C1"></span> <span><b>Red</b>: Delayed</span></div>
-        <div class="row"><span class="swatch" style="background:#F5F7F9;border-color:#D8DFE6"></span> <span><b>Grey</b>: Not Started</span></div>
+        <div class="row"><span class="swatch" style="background:#F1F8F4;border-color:#C8E2D2"></span> <span><b>Green</b>: on track / completed</span></div>
+        <div class="row"><span class="swatch" style="background:#FCF9EA;border-color:#EAE0B5"></span> <span><b>Yellow</b>: low risk</span></div>
+        <div class="row"><span class="swatch" style="background:#FCF5E9;border-color:#EED9B4"></span> <span><b>Amber</b>: medium risk</span></div>
+        <div class="row"><span class="swatch" style="background:#FBF0F5;border-color:#EBC9D9"></span> <span><b>Pink</b>: high risk</span></div>
+        <div class="row"><span class="swatch" style="background:#FCEFED;border-color:#EFC7C1"></span> <span><b>Red</b>: delayed</span></div>
+        <div class="row"><span class="swatch" style="background:#F5F7F9;border-color:#D8DFE6"></span> <span><b>Grey</b>: not started</span></div>
       </div>
       <div class="lg">
         <h3>Progress bar</h3>
@@ -411,7 +409,6 @@ canvas{max-height:250px}
     </table>
     </div>
   </div>
-  <div class="health-legend-slot"></div>
 </div>
 
 <!-- issue popup -->
@@ -514,7 +511,6 @@ canvas{max-height:250px}
     </table>
     </div>
   </div>
-  <div class="health-legend-slot"></div>
 </div>
 
 <!-- ============ STAGE ============ -->
@@ -556,7 +552,6 @@ canvas{max-height:250px}
     </table>
     </div>
   </div>
-  <div class="health-legend-slot"></div>
 </div>
 
 <script>
@@ -908,24 +903,6 @@ function fixEmptyTables(){
 }
 
 function initUI(){
-  /* shared health-status legend, shown at the bottom of every page (home has the full 3-column version) */
-  const HEALTH_LEGEND = `
-  <div class="card">
-    <h2>Legend</h2>
-    <div class="legendgrid">
-      <div class="lg">
-        <h3>Health status <span style="font-weight:500;color:#5A6E82;text-transform:none;font-size:10.5px">(hover any status for the logic)</span></h3>
-        <div class="row" data-tip="Forecast delay is under 5% of the planned duration and work has started (actual progress > 0)."><span class="badge b-green">On Track</span> Work is progressing as planned</div>
-        <div class="row" data-tip="Forecast delay is 5–20% of the planned duration. Recoverable at the current pace without re-planning."><span class="badge b-yellow">Low Risk</span> Minor slippage, recoverable</div>
-        <div class="row" data-tip="Forecast delay is 20–30% of the planned duration. Needs intervention to stop the end date moving."><span class="badge b-amber">Medium Risk</span> Falling behind, needs attention</div>
-        <div class="row" data-tip="Forecast delay is 30% or more of the planned duration and the planned end date has not yet been crossed. Escalate immediately."><span class="badge b-pink">High Risk</span> Significant slippage, escalate</div>
-        <div class="row" data-tip="The planned end date has been crossed and work is still ongoing. Forecast end shows the new expected completion."><span class="badge b-red">Delayed</span> Past its planned end date</div>
-        <div class="row" data-tip="No actual progress recorded yet (0%) and forecast delay is under 5% of planned duration. Only planned and forecast dates are shown."><span class="badge b-grey">Not Started</span> No work recorded yet</div>
-        <div class="footnote" style="margin-top:4px">Delay bands are measured as forecast delay ÷ planned duration. Completed items show Completed whether they finished on time or with delay.</div>
-      </div>
-    </div>
-  </div>`;
-  document.querySelectorAll(".health-legend-slot").forEach(el=>{ el.innerHTML = HEALTH_LEGEND; });
   document.getElementById("loader").style.display="none";
   document.getElementById("ws-name").textContent = DATA.data.workspace?.name || "Client Workspace";
   if(USING_SAMPLE) console.warn("[dashboard] rendering from embedded sample data");
@@ -960,17 +937,17 @@ function renderHome(){
   const n = normStatus(p.status);
 
   document.getElementById("proj-kpis").innerHTML = `
-    <div class="kpi">
-      <div class="lbl">Program health <span class="infoic" data-tip="Health status is calculated from the forecast delay as a percentage of the planned duration. The legend at the bottom of this page explains each bucket.">i</span></div><div class="val">${badge(p.status)}</div>
+    <div class="kpi" data-tip="Overall program health computed by MMT from schedule position, forecast delay and progress across all projects.">
+      <div class="lbl">Program health</div><div class="val">${badge(p.status)}</div>
       <div class="sub">Last update on program: <b>${fmtD(p.lastUpdatedAt)}</b></div>
     </div>
-    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}">
-      <div class="lbl">Actual progress <span class="infoic" data-tip="Duration weighted average of the actual completion of every project in this program, shown against the progress expected by today. The dark tick on the bar marks today's expected position.">i</span></div><div class="val">${pct(p.actualCompletionPercentage)}</div>
+    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}" data-tip="Actual % of work completed vs the % that should be complete by today per the plan. The dark tick on the bar marks today's expected position.">
+      <div class="lbl">Actual progress</div><div class="val">${pct(p.actualCompletionPercentage)}</div>
       <div class="minibar"><div class="f" style="width:${Math.min(100,p.actualCompletionPercentage||0)}%;background:${COLORS[n.col]}"></div><div class="t" style="left:${Math.min(100,p.expectedCompletionPercentage||0)}%"></div></div>
       <div class="sub">Expected by today: <b>${pct(p.expectedCompletionPercentage)}</b></div>
     </div>
-    <div class="kpi ${p.estimatedDelayDays>30?"k-red":p.estimatedDelayDays>0?"k-amber":"k-green"}">
-      <div class="lbl">Forecast completion <span class="infoic" data-tip="The latest forecast completion date among the projects in this program. The project finishing last decides when the program completes.">i</span></div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(p))}</div>
+    <div class="kpi ${p.estimatedDelayDays>30?"k-red":p.estimatedDelayDays>0?"k-amber":"k-green"}" data-tip="Completion date forecast by MMT's engine from the current pace of work, against the planned end date.">
+      <div class="lbl">Forecast completion</div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(p))}</div>
       <div class="sub">${p.estimatedDelayDays>0?`<span class="late">+${p.estimatedDelayDays} days delayed</span> vs planned <b>${fmtD(p.plannedEndDate)}</b>`:`on time · planned <b>${fmtD(p.plannedEndDate)}</b>`}</div>
     </div>
     <div class="kpi ${openIss.length?"k-amber":"k-green"} clickable" id="kpi-issues"><span class="go">›</span><div class="lbl">Open issues</div><div class="val">${openIss.length}</div><div class="sub">Tap to view all issues</div></div>`;
@@ -1087,8 +1064,8 @@ function openIssuesPage(preset){
     scopeEl.style.display="";
     scopeEl.innerHTML = "Scoped to: " + scopeParts.map(esc).join(`<span class="sep">›</span>`);
     hintEl.textContent = preset.pkg ? "Issues on this package and its milestones."
-                       : preset.phase ? "Issues in this phase. Use the package filter to narrow further."
-                       : "Issues in this project. Use the phase and package filters to narrow further.";
+                       : preset.phase ? "Issues in this phase — use the package filter to narrow further."
+                       : "Issues in this project — use the phase and package filters to narrow further.";
   } else {
     scopeEl.style.display="none";
     hintEl.textContent = "Every open issue at the project, package and milestone level. Use the filters to narrow by project, phase or package.";
@@ -1296,7 +1273,7 @@ function openPO(idx){
   const po = cur.project.pos[idx];
   cur.po = po; cur.phases = derivePhases(po);
   document.getElementById("tabPO").textContent = "Project Level";
-  ["crumb-po","crumb-po2","crumb-po3"].forEach(id=>document.getElementById(id).textContent = po.poNumber+" · "+(po.vendorName||"").replace(/,\s*$/,""));
+  ["crumb-po","crumb-po2","crumb-po3"].forEach(id=>document.getElementById(id).textContent = po.poNumber+" — "+(po.vendorName||"").replace(/,\s*$/,""));
   renderPO();
 }
 
@@ -1309,31 +1286,31 @@ function renderPO(){
   const poOpenIss = poIssues(po).filter(x=>x.status==="open").length;
 
   document.getElementById("po-kpis").innerHTML = `
-    <div class="kpi">
-      <div class="lbl">Project health <span class="infoic" data-tip="Health status is calculated from the forecast delay as a percentage of the planned duration. The legend at the bottom of this page explains each bucket.">i</span></div><div class="val">${badge(po.status)}</div>
+    <div class="kpi" data-tip="Project health computed by MMT from schedule position, forecast delay and progress across this project's packages.">
+      <div class="lbl">Project health</div><div class="val">${badge(po.status)}</div>
       <div class="sub">${po.aiStatus?`Momentum: <b>${esc(po.aiStatus)}</b> · `:""}Last update on project: <b>${fmtD(po.lastUpdatedAt)}</b></div>
     </div>
-    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}">
-      <div class="lbl">Actual progress <span class="infoic" data-tip="Actual completion of this project, weighted by package duration, shown against the progress expected by today. The dark tick on the bar marks today's expected position.">i</span></div><div class="val">${pct(po.actualCompletionPercentage)}</div>
+    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}" data-tip="Actual % of this project completed vs the % that should be complete by today (duration-weighted across its packages). The dark tick marks today's expected position.">
+      <div class="lbl">Actual progress</div><div class="val">${pct(po.actualCompletionPercentage)}</div>
       <div class="minibar"><div class="f" style="width:${Math.min(100,po.actualCompletionPercentage||0)}%;background:${COLORS[pn.col]}"></div><div class="t" style="left:${Math.min(100,po.expectedCompletionPercentage||0)}%"></div></div>
       <div class="sub">Expected by today: <b>${pct(po.expectedCompletionPercentage)}</b></div>
     </div>
-    <div class="kpi ${po.estimatedDelayDays>30?"k-red":po.estimatedDelayDays>0?"k-amber":"k-green"}">
-      <div class="lbl">Forecast completion <span class="infoic" data-tip="Completion date forecast from the current pace of work, compared with the planned end date.">i</span></div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(po))}</div>
+    <div class="kpi ${po.estimatedDelayDays>30?"k-red":po.estimatedDelayDays>0?"k-amber":"k-green"}" data-tip="Completion date forecast by MMT's engine from current pace, against the planned end date.">
+      <div class="lbl">Forecast completion</div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(po))}</div>
       <div class="sub">${po.estimatedDelayDays>0?`<span class="late">+${po.estimatedDelayDays} days delayed</span> vs planned <b>${fmtD(po.plannedEndDate)}</b>`:`on time · planned <b>${fmtD(po.plannedEndDate)}</b>`}</div>
     </div>
-    <div class="kpi ${critNotDone?"k-red":"k-green"}">
-      <div class="lbl">Critical milestones (not completed) <span class="infoic" data-tip="Milestones on the critical path that are not yet complete. A slip in any of these directly moves the project end date.">i</span></div><div class="val">${critNotDone}</div>
+    <div class="kpi ${critNotDone?"k-red":"k-green"}" data-tip="Milestones on the critical path that are not yet complete anywhere in this project. A slip on any of these directly moves the end date.">
+      <div class="lbl">Critical milestones (not completed)</div><div class="val">${critNotDone}</div>
     </div>
     <div class="kpi ${poOpenIss?"k-amber":"k-green"} clickable" id="po-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${poOpenIss}</div><div class="sub">Tap to view issues in this project</div>
+      <div class="lbl">Open issues</div><div class="val">${poOpenIss}</div><div class="sub">Tap to view — this project only</div>
     </div>`;
   document.getElementById("po-kpi-issues").addEventListener("click", ()=>{ openIssuesPage({order: po.poNumber}); drillTo("pIssues",1); });
 
   /* chart */
   if(phaseChartRef) phaseChartRef.destroy();
   if(window.Chart) phaseChartRef = new Chart(document.getElementById("phaseChart"), phaseChartConfig(phases,false));
-  document.getElementById("phaseChartMax").onclick = ()=> openChartModal("Phase progress: actual vs expected · "+po.poNumber, phaseChartConfig(phases,true));
+  document.getElementById("phaseChartMax").onclick = ()=> openChartModal("Phase progress — actual vs expected · "+po.poNumber, phaseChartConfig(phases,true));
   const legBtn = document.getElementById("phaseLegBtn"), legPop = document.getElementById("phaseLegPop");
   legBtn.onclick = (e)=>{ e.stopPropagation(); legPop.classList.toggle("shown"); };
   document.addEventListener("click",(e)=>{ if(!legPop.contains(e.target) && e.target!==legBtn) legPop.classList.remove("shown"); });
@@ -1368,7 +1345,7 @@ function renderPO(){
       <td>${fmtD(r.m.forecastEndDate)}${(r.m.estimatedDelayDays||0)>0?` <span class="late">(+${r.m.estimatedDelayDays}d)</span>`:""}</td>
       <td class="num">${msIss.length?`<span class="isswarn" data-crit="${idx}">⚠ ${msIss.length}</span>`:"—"}</td>
     </tr>`;
-  }).join("") : `<tr><td colspan="7"><div class="empty-note">No critical-path milestones pending. Everything on the critical path is complete.</div></td></tr>`;
+  }).join("") : `<tr><td colspan="7"><div class="empty-note">No critical-path milestones pending — everything on the critical path is complete.</div></td></tr>`;
   document.querySelectorAll("#crit-rows .isswarn").forEach(el=>el.addEventListener("click",(ev)=>{
     ev.stopPropagation();
     const r = critRows[parseInt(el.dataset.crit,10)];
@@ -1431,7 +1408,7 @@ function openIssueModal(title, list, opts){
 
 /* notes popup */
 function openNotesModal(issueObj){
-  document.getElementById("issModalTitle").textContent = "Notes: " + (issueObj.categoryName||"Issue");
+  document.getElementById("issModalTitle").textContent = "Notes — " + (issueObj.categoryName||"Issue");
   document.getElementById("issModalBody").innerHTML = `
     <div style="font-size:12px;color:#3D5165;margin-bottom:10px">${esc(issueObj.text)}</div>
     ${(issueObj.notes||[]).map(n=>`<div class="nt" style="font-size:12px;color:#3D5165;margin-bottom:8px;border-left:3px solid var(--border);padding-left:10px;line-height:1.55"><b style="color:var(--navy-dark)">${esc(n.addedBy||"")}</b> · ${fmtD(n.date)}<br>${esc(n.text)}</div>`).join("")}`;
@@ -1452,7 +1429,7 @@ function renderIssueList(el, list, opts){
         ${opts.showLevel!==false && i.__lvl?`<span>📍 ${esc(i.__lvl)}</span>`:""}
         ${i.categoryName?`<span>${esc(i.categoryName)}</span>`:""}
         <span>Raised by <b>${esc(personName(i.raisedBy))}</b> on ${fmtD(i.raisedDate)}</span>
-        ${i.notes&&i.notes.length?`<span class="notes-tgl" data-nid="${i.id}">📝 ${i.notes.length} note${i.notes.length===1?"":"s"} · show</span>`:""}
+        ${i.notes&&i.notes.length?`<span class="notes-tgl" data-nid="${i.id}">📝 ${i.notes.length} note${i.notes.length===1?"":"s"} — show</span>`:""}
       </div>
       ${i.notes&&i.notes.length?`<div class="notes-list" id="nl-${i.id}">${i.notes.map(n=>`<div class="nt"><b>${esc(n.addedBy||"")}</b> · ${fmtD(n.date)}: ${esc(n.text)}</div>`).join("")}</div>`:""}
     </div>`).join("");
@@ -1483,20 +1460,20 @@ function renderPhase(){
   });
 
   document.getElementById("phase-kpis").innerHTML = `
-    <div class="kpi">
-      <div class="lbl">Phase health <span class="infoic" data-tip="Health status is calculated from the forecast delay as a percentage of this phase's planned duration. The legend at the bottom of this page explains each bucket.">i</span></div><div class="val">${badge(ph.statusKey)}</div>
+    <div class="kpi" data-tip="Phase health derived from its milestones: delay as a % of planned duration, same bands as the PO level.">
+      <div class="lbl">Phase health</div><div class="val">${badge(ph.statusKey)}</div>
       <div class="sub">Last update on phase: <b>${fmtD(ph.lastUpdated)}</b></div>
     </div>
-    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}">
-      <div class="lbl">Actual progress <span class="infoic" data-tip="Duration weighted average of the actual completion of this phase's milestones, shown against the progress expected by today. The dark tick on the bar marks today's expected position.">i</span></div><div class="val">${Math.round(ph.actual*100)/100}%</div>
+    <div class="kpi ${gap>20?"k-red":gap>5?"k-amber":"k-green"}" data-tip="Duration-weighted actual % across this phase's milestones vs the % expected by today. The dark tick marks today's expected position.">
+      <div class="lbl">Actual progress</div><div class="val">${Math.round(ph.actual*100)/100}%</div>
       <div class="minibar"><div class="f" style="width:${Math.min(100,ph.actual)}%;background:${COLORS[ph.col]}"></div><div class="t" style="left:${Math.min(100,ph.expected)}%"></div></div>
       <div class="sub">Expected by today: <b>${Math.round(ph.expected*100)/100}%</b></div>
     </div>
-    <div class="kpi">
-      <div class="lbl">Packages <span class="infoic" data-tip="Number of packages in this phase, along with the planned window from the earliest start to the latest end.">i</span></div><div class="val">${ph.count}</div><div class="sub">plan: <b>${fmtD(ph.minStart)}</b> → <b>${fmtD(ph.maxEnd)}</b></div>
+    <div class="kpi" data-tip="Number of packages (items) in this phase, with the planned window from earliest start to latest end.">
+      <div class="lbl">Packages</div><div class="val">${ph.count}</div><div class="sub">plan: <b>${fmtD(ph.minStart)}</b> → <b>${fmtD(ph.maxEnd)}</b></div>
     </div>
     <div class="kpi ${phOpenIss?"k-amber":"k-green"} clickable" id="phase-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${phOpenIss}</div><div class="sub">Tap to view issues in this phase</div>
+      <div class="lbl">Open issues</div><div class="val">${phOpenIss}</div><div class="sub">Tap to view — this phase only</div>
     </div>
 `;
   document.getElementById("phase-kpi-issues").addEventListener("click", ()=>{ openIssuesPage({order: cur.po.poNumber, phase: ph.name}); drillTo("pIssues",1); });
@@ -1628,27 +1605,27 @@ function renderStage(){
 
   const sn = normStatus(it.status);
   document.getElementById("stage-kpis").innerHTML = `
-    <div class="kpi">
-      <div class="lbl">Package health <span class="infoic" data-tip="Health status is calculated from the forecast delay as a percentage of the planned duration. The legend at the bottom of this page explains each bucket.">i</span></div><div class="val">${badge(it.status)}</div>
+    <div class="kpi" data-tip="Package health computed by MMT from schedule position, forecast delay and milestone progress.">
+      <div class="lbl">Package health</div><div class="val">${badge(it.status)}</div>
       <div class="sub">Last update: <b>${fmtD(it.lastUpdatedAt)}</b></div>
     </div>
-    <div class="kpi ${gap>30?"k-red":gap>10?"k-amber":"k-green"}">
-      <div class="lbl">Actual progress <span class="infoic" data-tip="Actual completion of this package, shown against the progress expected by today. The dark tick on the bar marks today's expected position.">i</span></div><div class="val">${pct(it.actualCompletionPercentage)}</div>
+    <div class="kpi ${gap>30?"k-red":gap>10?"k-amber":"k-green"}" data-tip="Actual % of this package completed vs the % that should be complete by today. The dark tick marks today's expected position.">
+      <div class="lbl">Actual progress</div><div class="val">${pct(it.actualCompletionPercentage)}</div>
       <div class="minibar"><div class="f" style="width:${Math.min(100,it.actualCompletionPercentage||0)}%;background:${COLORS[sn.col]}"></div><div class="t" style="left:${Math.min(100,it.expectedCompletionPercentage||0)}%"></div></div>
       <div class="sub">Expected by today: <b>${pct(it.expectedCompletionPercentage)}</b></div>
     </div>
-    <div class="kpi ${it.estimatedDelayDays>30?"k-red":it.estimatedDelayDays>0?"k-amber":"k-green"}">
-      <div class="lbl">Forecast end <span class="infoic" data-tip="Completion date forecast from the current pace of work, compared with the planned end date.">i</span></div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(it))}</div>
+    <div class="kpi ${it.estimatedDelayDays>30?"k-red":it.estimatedDelayDays>0?"k-amber":"k-green"}" data-tip="Completion date forecast by MMT's engine from current pace, against the planned end date.">
+      <div class="lbl">Forecast end</div><div class="val" style="font-size:14.5px">${fmtD(fcstEnd(it))}</div>
       <div class="sub">${it.estimatedDelayDays>0?`<span class="late">+${it.estimatedDelayDays} days delayed</span> vs planned <b>${fmtD(it.plannedEndDate)}</b>`:`on time · planned <b>${fmtD(it.plannedEndDate)}</b>`}</div>
     </div>
-    <div class="kpi">
-      <div class="lbl">Milestones completed <span class="infoic" data-tip="Milestones completed out of the total for this package, split into completed on time and completed with delay.">i</span></div><div class="val">${s.completed||0}<small>/${s.total||0}</small></div><div class="sub">${s.normallyCompleted||0} on time · ${s.delayedCompleted||0} with delay</div>
+    <div class="kpi" data-tip="Milestones completed out of the total for this package, split into completed on time vs completed with delay.">
+      <div class="lbl">Milestones completed</div><div class="val">${s.completed||0}<small>/${s.total||0}</small></div><div class="sub">${s.normallyCompleted||0} on time · ${s.delayedCompleted||0} with delay</div>
     </div>
-    <div class="kpi ${s.delayed?"k-red":"k-green"}">
-      <div class="lbl">Currently delayed <span class="infoic" data-tip="Milestones not yet complete that are currently forecast to finish late.">i</span></div><div class="val">${s.delayed||0}</div>
+    <div class="kpi ${s.delayed?"k-red":"k-green"}" data-tip="Milestones not yet complete that are currently forecast late.">
+      <div class="lbl">Currently delayed</div><div class="val">${s.delayed||0}</div>
     </div>
     <div class="kpi ${pkgOpenIss?"k-amber":"k-green"} clickable" id="stage-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${pkgOpenIss}</div><div class="sub">Tap to view issues in this package</div>
+      <div class="lbl">Open issues</div><div class="val">${pkgOpenIss}</div><div class="sub">Tap to view — this package only</div>
     </div>`;
   document.getElementById("stage-kpi-issues").addEventListener("click", ()=>{
     openIssuesPage({order: cur.po.poNumber, phase: (cur.phase? cur.phase.name : ""), pkg: it.itemName});
