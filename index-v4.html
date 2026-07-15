@@ -162,8 +162,6 @@ tr.rowlink{cursor:pointer} tr.rowlink:hover td{background:#F2F6FA}
 .tblwrap .isstbl thead th{position:sticky;top:0;z-index:6}
 .filterrow{display:flex;gap:16px;margin-bottom:13px;flex-wrap:wrap}
 .filterrow label{font-size:11.5px;font-weight:700;color:var(--navy-dark);display:flex;align-items:center;gap:8px}
-.scopeline{font-size:11.5px;font-weight:700;color:var(--navy-dark);background:#E2ECF5;border:1px solid #C9DAEB;border-radius:8px;padding:7px 12px;margin-bottom:12px;display:inline-block}
-.scopeline .sep{color:var(--muted);padding:0 5px}
 select.flt{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:#fff;cursor:pointer;font-family:inherit;min-width:180px}
 select.flt:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,78,120,.1)}
 @media(max-width:900px){.msrow{grid-template-columns:30px 1.5fr .9fr 1fr 60px}.msrow .prg,.msrow .dt.ps,.msrow .dt.pe{display:none}.mshead span:nth-child(4),.mshead span:nth-child(5),.mshead span:nth-child(6){display:none}}
@@ -300,9 +298,9 @@ canvas{max-height:250px}
 <div class="tabs" id="tabs">
   <div class="tab active" data-page="pHome" data-depth="0">Program Level</div>
   <div class="tab hidden" data-page="pPO" data-depth="1" id="tabPO">PO</div>
+  <div class="tab hidden" data-page="pIssues" data-depth="1" id="tabIssues">Issues</div>
   <div class="tab hidden" data-page="pPhase" data-depth="2" id="tabPhase">Phase</div>
   <div class="tab hidden" data-page="pStage" data-depth="3" id="tabStage">Stage</div>
-  <div class="tab hidden" data-page="pIssues" data-depth="1" id="tabIssues">Issues</div>
   <span class="livechip"><span class="livedot"></span><span id="refreshTxt">REFRESHED</span></span>
 </div>
 
@@ -398,7 +396,7 @@ canvas{max-height:250px}
 
   <div class="card">
     <h2>Open issues</h2>
-    <div class="hint">Every open issue in this project at the project, package and milestone level. Use the phase filter to narrow.</div>
+    <div class="hint">Every open issue on this project at the project, package and milestone level. Use the phase filter to narrow.</div>
     <div class="filterrow">
       <label>Phase <select class="flt" id="po-flt-phase"><option value="">All phases</option></select></label>
     </div>
@@ -431,13 +429,11 @@ canvas{max-height:250px}
 <div class="page" id="pIssues">
   <div class="crumb"><span class="lnk" data-goto="pHome" data-depth="0">Program Level</span> › <b>Issues</b></div>
   <div class="card">
-    <h2 id="iss-title">Open issues across the program</h2>
-    <div class="hint" id="iss-hint">Every open issue at the project, package and milestone level. Use the filters to narrow by project, phase or package.</div>
-    <div class="scopeline" id="iss-scope" style="display:none"></div>
+    <h2>Open issues across the program</h2>
+    <div class="hint">Every open issue at the project, package and milestone level. Use the filters to narrow by project or phase.</div>
     <div class="filterrow">
       <label>Project <select class="flt" id="flt-order"><option value="">All projects</option></select></label>
       <label>Phase <select class="flt" id="flt-phase"><option value="">All phases</option></select></label>
-      <label>Package <select class="flt" id="flt-pkg"><option value="">All packages</option></select></label>
     </div>
     <div class="tblwrap" style="max-height:520px">
     <table class="isstbl">
@@ -502,8 +498,8 @@ canvas{max-height:250px}
   </div>
 
   <div class="card">
-    <h2>Open issues in this phase</h2>
-    <div class="hint">Issues in this phase's packages and milestones. Milestone stays blank when the issue sits on the package itself</div>
+    <h2>Open issues on this phase</h2>
+    <div class="hint">Issues on this phase's packages and milestones. Milestone stays blank when the issue sits on the package itself</div>
     <div class="tblwrap">
     <table class="isstbl">
       <thead><tr><th>Package</th><th>Milestone</th><th style="width:32%">Issue / comment</th><th>Category</th><th>Contributor</th><th>Assigned to</th><th>Raised on</th><th class="num">Notes</th></tr></thead>
@@ -543,8 +539,8 @@ canvas{max-height:250px}
   </div>
 
   <div class="card">
-    <h2>Open issues in this package</h2>
-    <div class="hint">Issues raised against this package or its milestones</div>
+    <h2>Open issues on this package</h2>
+    <div class="hint">Issues raised directly on this package or its milestones</div>
     <div class="tblwrap">
     <table class="isstbl">
       <thead><tr><th>Milestone</th><th style="width:34%">Issue / comment</th><th>Category</th><th>Contributor</th><th>Assigned to</th><th>Raised on</th><th class="num">Notes</th></tr></thead>
@@ -867,9 +863,7 @@ function renderTabs(){
   document.querySelectorAll(".tab").forEach(t=>{
     const tooDeep = parseInt(t.dataset.depth,10) > maxDepth;
     const unarmed = !armedTabs.has(t.dataset.page);
-    /* Issues tab: once opened it stays visible (always last in the strip), regardless of drill depth */
-    const hide = t.dataset.page==="pIssues" ? unarmed : (tooDeep || unarmed);
-    t.classList.toggle("hidden", hide);
+    t.classList.toggle("hidden", tooDeep || unarmed);
   });
 }
 function showPage(id){
@@ -979,8 +973,7 @@ function renderHome(){
   tiles.querySelectorAll(".pocard").forEach(el=>el.addEventListener("click",()=>{ openPO(parseInt(el.dataset.po,10)); drillTo("pPO",1); }));
 }
 
-function openIssuesPage(preset){
-  preset = preset || {};   /* {order, phase, pkg} — pre-applies filters so the list is relevant to the page the user came from */
+function openIssuesPage(){
   const p = cur.project;
   const phaseOf = (m)=>{ const dd=(m.dynamicData||[]).find(d=>String(d.key).toLowerCase()==="phases"); return dd&&dd.value?String(dd.value):"Unphased"; };
   const rows=[];
@@ -993,8 +986,8 @@ function openIssuesPage(preset){
     });
   });
 
-  /* filters: order dropdown; phase dropdown grouped by order; package dropdown (only packages that have issues) */
-  const orderSel=document.getElementById("flt-order"), phaseSel=document.getElementById("flt-phase"), pkgSel=document.getElementById("flt-pkg");
+  /* filters: order dropdown; phase dropdown grouped by order */
+  const orderSel=document.getElementById("flt-order"), phaseSel=document.getElementById("flt-phase");
   const orders=[...new Set(rows.map(r=>r.po))];
   orderSel.innerHTML = `<option value="">All projects</option>` + orders.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join("");
   function fillPhases(){
@@ -1005,15 +998,10 @@ function openIssuesPage(preset){
       return `<optgroup label="${esc(po.poNumber)}">` + phs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("") + `</optgroup>`;
     }).join("");
   }
-  function fillPkgs(){
-    const so=orderSel.value, sp=phaseSel.value;
-    const pkgs=[...new Set(rows.filter(r=>(!so||r.po===so)&&(!sp||r.ph===sp)).map(r=>r.st).filter(s=>s!=="—"))];
-    pkgSel.innerHTML = `<option value="">All packages</option>` + pkgs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
-  }
   const nIdx={};
   function draw(){
-    const so=orderSel.value, sp=phaseSel.value, sk=pkgSel.value;
-    const list = rows.filter(r=>(!so||r.po===so)&&(!sp||r.ph===sp)&&(!sk||r.st===sk));
+    const so=orderSel.value, sp=phaseSel.value;
+    const list = rows.filter(r=>(!so||r.po===so)&&(!sp||r.ph===sp));
     document.getElementById("all-iss-rows").innerHTML = list.length ? list.map(r=>{
       if(r.x.notes&&r.x.notes.length) nIdx[r.x.id]=r.x;
       const lvlCells = (r.ph==="—" && r.st==="—" && r.ms==="—")
@@ -1035,43 +1023,9 @@ function openIssuesPage(preset){
       if(x) openNotesModal(x);
     }));
   }
-  orderSel.onchange = ()=>{ fillPhases(); fillPkgs(); draw(); fixEmptyTables(); };
-  phaseSel.onchange = ()=>{ fillPkgs(); draw(); fixEmptyTables(); };
-  pkgSel.onchange = ()=>{ draw(); fixEmptyTables(); };
-
-  /* apply presets from the page the user navigated from; inject the option if the
-     scoped project/package has no issue rows so the scope still applies honestly */
-  const ensureOpt=(sel,val)=>{ if(val && ![...sel.options].some(o=>o.value===val)) sel.insertAdjacentHTML("beforeend", `<option value="${esc(val)}">${esc(val)}</option>`); };
-  fillPhases();
-  if(preset.order){ ensureOpt(orderSel, preset.order); orderSel.value = preset.order; fillPhases(); }
-  if(preset.phase){ ensureOpt(phaseSel, preset.phase); phaseSel.value = preset.phase; }
-  fillPkgs();
-  if(preset.pkg){ ensureOpt(pkgSel, preset.pkg); pkgSel.value = preset.pkg; }
-
-  /* hide the dropdowns already locked by the page the user came from — only broader/narrowing filters stay */
-  orderSel.parentElement.style.display = preset.order ? "none" : "";
-  phaseSel.parentElement.style.display = preset.phase ? "none" : "";
-  pkgSel.parentElement.style.display   = preset.pkg   ? "none" : "";
-
-  /* title + scope line reflect the locked context */
-  const titleEl=document.getElementById("iss-title"), hintEl=document.getElementById("iss-hint"), scopeEl=document.getElementById("iss-scope");
-  titleEl.textContent = preset.pkg ? "Open issues in this package"
-                      : preset.phase ? "Open issues in this phase"
-                      : preset.order ? "Open issues in this project"
-                      : "Open issues across the program";
-  const scopeParts=[preset.order, preset.phase, preset.pkg].filter(Boolean);
-  if(scopeParts.length){
-    scopeEl.style.display="";
-    scopeEl.innerHTML = "Scoped to: " + scopeParts.map(esc).join(`<span class="sep">›</span>`);
-    hintEl.textContent = preset.pkg ? "Issues on this package and its milestones."
-                       : preset.phase ? "Issues in this phase — use the package filter to narrow further."
-                       : "Issues in this project — use the phase and package filters to narrow further.";
-  } else {
-    scopeEl.style.display="none";
-    hintEl.textContent = "Every open issue at the project, package and milestone level. Use the filters to narrow by project, phase or package.";
-  }
-
-  draw();
+  orderSel.onchange = ()=>{ fillPhases(); draw(); fixEmptyTables(); };
+  phaseSel.onchange = ()=>{ draw(); fixEmptyTables(); };
+  fillPhases(); draw();
   fixEmptyTables();
 }
 
@@ -1283,7 +1237,6 @@ function renderPO(){
   const pn = normStatus(po.status);
   let critNotDone = 0;
   (po.items||[]).forEach(it=>(it.milestones||[]).forEach(m=>{ if(m.isOnCriticalPath && !isDone(m.status)) critNotDone++; }));
-  const poOpenIss = poIssues(po).filter(x=>x.status==="open").length;
 
   document.getElementById("po-kpis").innerHTML = `
     <div class="kpi" data-tip="Project health computed by MMT from schedule position, forecast delay and progress across this project's packages.">
@@ -1301,11 +1254,7 @@ function renderPO(){
     </div>
     <div class="kpi ${critNotDone?"k-red":"k-green"}" data-tip="Milestones on the critical path that are not yet complete anywhere in this project. A slip on any of these directly moves the end date.">
       <div class="lbl">Critical milestones (not completed)</div><div class="val">${critNotDone}</div>
-    </div>
-    <div class="kpi ${poOpenIss?"k-amber":"k-green"} clickable" id="po-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${poOpenIss}</div><div class="sub">Tap to view — this project only</div>
     </div>`;
-  document.getElementById("po-kpi-issues").addEventListener("click", ()=>{ openIssuesPage({order: po.poNumber}); drillTo("pIssues",1); });
 
   /* chart */
   if(phaseChartRef) phaseChartRef.destroy();
@@ -1453,11 +1402,6 @@ function renderPhase(){
   const ph=cur.phase;
   const gap = ph.expected - ph.actual;
   const late = ph.items.filter(i=>(i.estimatedDelayDays||0)>0).length;
-  let phOpenIss = 0;
-  ph.items.forEach(it=>{
-    phOpenIss += (it.issues||[]).filter(x=>x.status==="open").length;
-    (it.milestones||[]).forEach(m=>{ phOpenIss += (m.issues||[]).filter(x=>x.status==="open").length; });
-  });
 
   document.getElementById("phase-kpis").innerHTML = `
     <div class="kpi" data-tip="Phase health derived from its milestones: delay as a % of planned duration, same bands as the PO level.">
@@ -1472,11 +1416,7 @@ function renderPhase(){
     <div class="kpi" data-tip="Number of packages (items) in this phase, with the planned window from earliest start to latest end.">
       <div class="lbl">Packages</div><div class="val">${ph.count}</div><div class="sub">plan: <b>${fmtD(ph.minStart)}</b> → <b>${fmtD(ph.maxEnd)}</b></div>
     </div>
-    <div class="kpi ${phOpenIss?"k-amber":"k-green"} clickable" id="phase-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${phOpenIss}</div><div class="sub">Tap to view — this phase only</div>
-    </div>
 `;
-  document.getElementById("phase-kpi-issues").addEventListener("click", ()=>{ openIssuesPage({order: cur.po.poNumber, phase: ph.name}); drillTo("pIssues",1); });
 
   /* phase S-curve */
   document.getElementById("phase-scurve-title").textContent = ph.name + " S-curve: actual vs expected";
@@ -1503,7 +1443,7 @@ function renderPhase(){
   document.getElementById("phase-page-iss-rows").innerHTML = rows.length ? rows.map(r=>`<tr>
       <td>${esc(r.st)}</td><td>${r.ms==="—"?"—":`<b>${esc(r.ms)}</b>`}</td>${cells(r.x)}
     </tr>`).join("")
-    : `<tr><td colspan="8"><div class="empty-note">No open issues in this phase.</div></td></tr>`;
+    : `<tr><td colspan="8"><div class="empty-note">No open issues on this phase.</div></td></tr>`;
   document.querySelectorAll("#phase-page-iss-rows .notes-tgl").forEach(el=>el.addEventListener("click",(ev)=>{
     ev.stopPropagation();
     const x = pNotesIdx[el.dataset.pnotes];
@@ -1600,8 +1540,6 @@ function renderStage(){
   const it=cur.stage, s=it.milestoneStats||{};
   const critList=(it.milestones||[]).filter(m=>m.isOnCriticalPath && !isDone(m.status) && (m.estimatedDelayDays||0)>0);
   const gap=(it.expectedCompletionPercentage||0)-(it.actualCompletionPercentage||0);
-  let pkgOpenIss = (it.issues||[]).filter(x=>x.status==="open").length;
-  (it.milestones||[]).forEach(m=>{ pkgOpenIss += (m.issues||[]).filter(x=>x.status==="open").length; });
 
   const sn = normStatus(it.status);
   document.getElementById("stage-kpis").innerHTML = `
@@ -1623,14 +1561,7 @@ function renderStage(){
     </div>
     <div class="kpi ${s.delayed?"k-red":"k-green"}" data-tip="Milestones not yet complete that are currently forecast late.">
       <div class="lbl">Currently delayed</div><div class="val">${s.delayed||0}</div>
-    </div>
-    <div class="kpi ${pkgOpenIss?"k-amber":"k-green"} clickable" id="stage-kpi-issues"><span class="go">›</span>
-      <div class="lbl">Open issues</div><div class="val">${pkgOpenIss}</div><div class="sub">Tap to view — this package only</div>
     </div>`;
-  document.getElementById("stage-kpi-issues").addEventListener("click", ()=>{
-    openIssuesPage({order: cur.po.poNumber, phase: (cur.phase? cur.phase.name : ""), pkg: it.itemName});
-    drillTo("pIssues",1);
-  });
 
   /* combined open issues (stage-level rows show "—" for milestone) */
   const sorted=(it.milestones||[]).slice().sort((a,b)=>(a.order||0)-(b.order||0));
@@ -1647,7 +1578,7 @@ function renderStage(){
   sorted.forEach(m=>(m.issues||[]).filter(x=>x.status==="open").forEach(x=>{ issRows.push({ms:m.name, x}); if(x.notes&&x.notes.length) sNotesIdx[x.id]=x; }));
   document.getElementById("stage-iss-rows").innerHTML = issRows.length
     ? issRows.map(r=>`<tr><td>${r.ms==="—"?"—":`<b>${esc(r.ms)}</b>`}</td>${sCells(r.x)}</tr>`).join("")
-    : `<tr><td colspan="7"><div class="empty-note">No open issues in this package.</div></td></tr>`;
+    : `<tr><td colspan="7"><div class="empty-note">No open issues on this package.</div></td></tr>`;
   document.querySelectorAll("#stage-iss-rows .notes-tgl").forEach(el=>el.addEventListener("click",(ev)=>{
     ev.stopPropagation();
     const x = sNotesIdx[el.dataset.snotes];
